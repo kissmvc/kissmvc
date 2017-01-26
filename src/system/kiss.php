@@ -9,7 +9,7 @@
 /* some definitions */
 define('NL', PHP_EOL);
 define('BR', '<br>');
-define('BRNL', '<br>'.PHP_EOL);
+define('BRX', '<br>'.PHP_EOL);
 define('TAB', "\t");
 
 //define root path
@@ -55,8 +55,7 @@ if (!defined('ERROR_REPORTING')) {
 }
 
 //custom error reporting
-//error_reporting(ERROR_REPORTING);
-error_reporting(E_ALL);
+error_reporting(ERROR_REPORTING);
 set_error_handler('error_handler');
 
 //fix IIS rewrite
