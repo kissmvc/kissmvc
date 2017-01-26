@@ -26,6 +26,11 @@ class FileSystem {
 		return $this;
 	}
 	
+	public function fromPath($path) {
+		$this->path = realpath($path);
+		return $this;
+	}
+	
 	public function exists($path = null) {
 		$path = $this->checkPath($path);
 		return file_exists($path);
