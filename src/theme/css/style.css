@@ -1,0 +1,34 @@
+@import url(http://fonts.googleapis.com/css?family=Open+Sans:300italic,400,300,700,800&subset=latin,latin-ext);
+
+div { *zoom: 1; }
+div:before, div:after { display: table; content: ""; }
+div:after { clear: both; }
+
+html {
+	overflow-y: scroll;
+}
+
+/* Styles start here */
+
+body {
+    padding-top: 70px; /* Required padding for .navbar-fixed-top. Change if height of navigation changes. */
+}
+
+.navbar-fixed-top .nav {
+    padding: 15px 0;
+}
+
+.navbar-fixed-top .navbar-brand {
+    padding: 0 15px;
+}
+
+/* Mobile styles */
+@media(min-width:768px) {
+    body {
+        padding-top: 100px; /* Required padding for .navbar-fixed-top. Change if height of navigation changes. */
+    }
+
+    .navbar-fixed-top .navbar-brand {
+        padding: 15px 0;
+    }
+}
