@@ -47,13 +47,13 @@ $date = $page->from->post('date')->as_datetime();
 
 ```php
 $sql = 'SELECT * FROM news_table LIMIT 10';
-$page-data->news = $page->db->query($sql);
+$page->data->news = $page->db->query($sql);
 ```
 
 **Easier select and fill data container**
 
 ```php
-$page-data->news = $page->db->select('news_table', 5); //means SELECT * FROM news_table WHERE id = 5 - db class automaticaly use field with primary key eg: id
+$page->data->news = $page->db->select('news_table', 5); //means SELECT * FROM news_table WHERE id = 5 - db class automaticaly use field with primary key eg: id
 ```
 
 **Insert data**
@@ -80,7 +80,8 @@ $page->db->insert('news_table', $values);
 **Need escape?**
 
 ```php
-//use $page->from->...->escaped()
+//use 
+$page->from->...->escaped()
 
 //or
 $title = $page->db->escape($page->from->post('title')->val());
@@ -114,14 +115,15 @@ $page->db->delete('news_table', 5);
 
 ```php
 $sql = 'SELECT * FROM news_table LIMIT 10';
-$page-data->news = $page->db->query($sql);
+$page->data->news = $page->db->query($sql);
 
 foreach ($page->data->news as $article) {
   echo $article->title;
 }
 
 //or any row directly by index
-echo $page->data-news->rows[2]->title;
+echo $page->data->news->rows[2]->title;
+
 //same as
 echo $page->data->news[2]->title;
 
@@ -154,8 +156,8 @@ $mail->addFrom('tester@example.com')
 ->addSubject('Hello form KISS MVC')
 ->setPriority(Mail::EMAIL_HIGH)
 ->addBody('<div>Hello from KISS MVC Framework! Images is attached automaticaly<br><p><img src="public/cache/photo_300x300.jpg"></p></div>')
-->send());
-//or save as eml for testing
+->send();
+//or save as eml for testing without sending spam
 ->save('public/email.eml');
 ```
 
@@ -173,19 +175,14 @@ $fs->getDirecory()->getFullTree() //use latest directory, so 'public/images/' an
 
 ```php
 $loged = $page->session->get('loged');
-
 //or array style
 $loged = $page->session['loged'];
-
 //or object style
 $loged = $page->session->loged;
-
 //same for set
 $page->session-set('loged', true);
-
 //or
 $page->session['loged'] = true;
-
 //or
 $page->session->loged = true;
 ```
@@ -194,10 +191,22 @@ $page->session->loged = true;
 
 ```php
 $title = $page->from->get('title', 'my default title')->val();
-//need to convert chechbox input value to true/false?
+//need to convert checkbox input value to true/false?
 $enabled = $page->from->get('enabled', false)->as_bool();
 //or
 $enabled = (bool)$page->from->get('enabled', false)->val();
+```
+
+**Validation available**
+
+```php
+$validator = new Validator();
+//validate email
+if (Validator->validate('email', 'someone@somewhere.com')) {
+	echo 'Valid email address';
+}
+//available validators
+//boolean, bool, number, int, float, numeric, string, null, email, url, ip, date, datetime
 ```
 
 **And The Real Magic - QueryHelper**
