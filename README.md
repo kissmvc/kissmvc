@@ -12,7 +12,7 @@ Example: *index.php?page=news&action=addnew* ... this URL mean you will load "ne
 If you not define page, then "index" page (controller) is used. If you not define action, then the "show" action (function) is used. For SEO url, there is modified AltoRouter with default *"/controller/action"* route.
 
 ## How to use
-KISS is ready to use PHP application framework, so you can copy source to you app directory and you are ready to build your application. What you need:
+KISS is ready to use PHP application framework, so you can copy source to your app directory and you are ready to build your application. What you need:
 
 * edit config.php to setup database connection
 * create "page" (controller) file inside app folder, default index.php
