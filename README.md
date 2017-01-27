@@ -202,7 +202,7 @@ $enabled = (bool)$page->from->get('enabled', false)->val();
 ```php
 $validator = new Validator();
 //validate email
-if (Validator->validate('email', 'someone@somewhere.com')) {
+if ($validator->validate('email', 'someone@somewhere.com')) {
 	echo 'Valid email address';
 }
 //available validators
