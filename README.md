@@ -2,14 +2,14 @@
 KISS Framework - Very simple semi MVC framework with fast learning curve.
 
 ## About
-KISS framework is a simple, easy to use framework created with students for students, to speedup learning, simplify programming in PHP and encapsulate complexity of standard MVC for beginners. It is created with Keep It Simple Stupid principle in mind, so this is why KISS and Semi MVC (models is not required).
+KISS framework is a simple, easy to use framework created with students for students, to speedup learning, simplify programming in PHP and encapsulate complexity of standard MVC for beginners. It is created with *Keep It Simple Stupid* principle in mind, so this is why KISS and Semi MVC (models is not required, but could be used).
 
 ## How it's work
 KISS is semi MVC framework, where are controllers and models joined into one object for simplicity. So this controller is dedicated to prepare data for presenter (view) and then this data is rendered by presenter (view/theme). All application logic is based on two thing - page and action. Page define controller, which sits inside app folder with same name as page. Action defines function that will be used to prepare and fill data for presenter.
 
-Example: index.php?page=news&action=addnew ... this URL mean you will load "news" controller and call "addnew" function. In detail, application will load news.php (controller) from "app" folder. This news.php file contains class named "NewsPage" with function "addnew". Here you can do queries do database, any other things and save it to $page->data->xxx container. This $page->data->xxx container is then used inside template to render data to user. (It's eg. like $data['xxx'] in Laravel).
+Example: *index.php?page=news&action=addnew* ... this URL mean you will load "news" controller and call "addnew" function. In detail, application will load news.php (controller) from "app" folder. This news.php file contains class named "NewsPage" with function "addnew". Here you can do queries do database, any other things and save it to *$page->data->xxx* container. This *$page->data->xxx* container is then used inside template to render data to user. (It's eg. like *$data['xxx']* in Laravel).
 
-If you not define page, then "index" page (controller) is used. If you not define action, then the "show" action (function) is used. For SEO url, there is modified AltoRouter with default "/controller/action" route.
+If you not define page, then "index" page (controller) is used. If you not define action, then the "show" action (function) is used. For SEO url, there is modified AltoRouter with default *"/controller/action"* route.
 
 ## How to use
 KISS is ready to use PHP application framework, so you can copy source to you app directory and you are ready to build your application. What you need:
@@ -225,7 +225,7 @@ $query->into('contacts_table')
 //or
 ->update($your_id);
 
-//if input names is same as flied names, ommit second parameter
+//if input names is same as field names, omit second parameter
 $query->into('contacts_table')
 ->fromPost() /* fill fields by values from POST */
 ->addField('name')
@@ -233,7 +233,10 @@ $query->into('contacts_table')
 ->addField('msg')
 ->insert();
 
-//if you need add exact value also, combine addField with addValue
+//or in one line, elegant
+$query->into('contacts_table')->fromPost()->addField('name')->addField('email')->addField('msg')->insert();
+
+//if you need to add exact value also, combine addField with addValue as you need
 $query->into('contacts_table')
 ->fromPost() /* fill fields by values from POST */
 ->addField('name')
