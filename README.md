@@ -5,9 +5,9 @@ KISS Framework - Very simple semi MVC framework with fast learning curve.
 KISS framework is a simple, easy to use framework created with students for students, to speedup learning, simplify programming in PHP and encapsulate complexity of standard MVC for beginners. It is created with Keep It Simple Stupid principle in mind, so this is why KISS and Semi MVC (models is not required).
 
 ## How it's work
-KISS is semi MVC framework, where are controllers and models joined into one object for simplicity. So this controller is dedicated to prepare data for presenter (view) and then this data is rendered by presenter (view/theme). All application logic is based on two thing - page and action. Page define controller, that sits inside app folder with same name as page. Action define fuction that will be used to prepare and fill data for presenter.
+KISS is semi MVC framework, where are controllers and models joined into one object for simplicity. So this controller is dedicated to prepare data for presenter (view) and then this data is rendered by presenter (view/theme). All application logic is based on two thing - page and action. Page define controller, which sits inside app folder with same name as page. Action defines function that will be used to prepare and fill data for presenter.
 
-Example: index.php?page=news&action=addnew ... this URL mean you will load "news" controller and call "addnew" function. In detail, application will load news.php (controller) from "app" folder. This news.php file contain class named "NewsPage" with function "addnew". Here you can do queries do database, any other things and save it to $page->data->xxx container. This $page->data->xxx container is then used inside template to render data to user. (It's eg. like $data['xxx'] in Laravel).
+Example: index.php?page=news&action=addnew ... this URL mean you will load "news" controller and call "addnew" function. In detail, application will load news.php (controller) from "app" folder. This news.php file contains class named "NewsPage" with function "addnew". Here you can do queries do database, any other things and save it to $page->data->xxx container. This $page->data->xxx container is then used inside template to render data to user. (It's eg. like $data['xxx'] in Laravel).
 
 If you not define page, then "index" page (controller) is used. If you not define action, then the "show" action (function) is used. For SEO url, there is modified AltoRouter with default "/controller/action" route.
 
@@ -256,4 +256,4 @@ if ($query->isValid()) {
 ```
 
 ## And it's not all
-More samples, documentatnion and website soon.
+More samples, documentation and website soon.
