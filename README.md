@@ -29,7 +29,7 @@ There is default Start Bootstrap starter template. You can change template insid
 - *index.php* - in root folder - app loader
 
 ## Classes
-There is so much and so powerfull classes inside KISS framework, more help soon.
+There is so much and so powerfull classes inside KISS framework, more documentation soon.
 
 ## Examples
 
