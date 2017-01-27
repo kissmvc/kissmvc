@@ -21,6 +21,13 @@ KISS is ready to use PHP application framework, so you can copy source to your a
 
 There is default Start Bootstrap starter template. You can change template inside controller eg: $page->tpl = 'news-edit' for use "news-edit.php" template.
 
+## Default structure
+- app folder - contains controller files with controller class named by filename+Page, e.g. class IndexPage {} for index.php controller file
+- system folder - contains KISS framework files
+- theme folder - contains theme files, simple template engine used where variables is displayed by echo
+- config.php - in root folder, contains base definitions
+- index.php - in root folder - app loader
+
 ## Classes
 There is so much and so powerfull classes inside KISS framework, more help soon.
 
