@@ -332,7 +332,7 @@
 		
 	}
 	
-	public function autoinsert($prefix = 'db', $separator = '_', $from = null, $table = null) { //db_fieldname_validator_size
+	public function autoInsert($prefix = 'db', $separator = '_', $from = null, $table = null) { //db_fieldname_validator_size
 	
 		$this->autoAdd($prefix, $separator, $from, $table);
 		
@@ -342,12 +342,26 @@
 		return false;
 	}
 	
-	public function autoupdate($id, $prefix = 'db', $separator = '_', $from = null, $table = null) {
+	public function autoUpdate($id, $prefix = 'db', $separator = '_', $from = null, $table = null) {
 	
 		$this->autoAdd($prefix, $separator, $from, $table);
 		
 		if (count($this->values) > 0 && $this->isValid()) {
 			return $this->update($id);
+		}
+		return false;
+	}
+	
+	public function autoInsertUpdate($id, $prefix = 'db', $separator = '_', $from = null, $table = null) {
+	
+		$this->autoAdd($prefix, $separator, $from, $table);
+		
+		if (count($this->values) > 0 && $this->isValid()) {
+			if ($id > 0) {
+				return $this->update($id);
+			} else {
+				return $this->insert();
+			}
 		}
 		return false;
 	}
