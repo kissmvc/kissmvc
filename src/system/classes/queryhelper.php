@@ -77,6 +77,8 @@
 			
 		} else {
 		
+			//echo "field: $field_name, key: $value_key_name, value: $this->data[$value_key_name], default: $default, validator: $validator, size: $size<br>";
+			//var_dump($this->data[$value_key_name]);
 			$this->addValue($field_name, $this->data[$value_key_name], $default, $validator, $size);
 		
 		}
@@ -283,11 +285,12 @@
 			$validator = null;
 			
 			//db_fieldname_validator_size
-			//db_name_200
-			//db_name_string
-			//db_name_20_200
-			//db_name_string_200
-			//db_name_string_10_200
+			//db_name_200 - field & max size
+			//db_name_string - field & validator e.g. db_mail_email
+			//db_name_20_200 - field & min/max size
+			//db_name_string_200 - field & validator & max size
+			//db_name_string_10_200 - field y validator y min/max size
+			//check if isValid() before insert/update, see autoinsert()
 			
 			if (count($temp) > 1 && $temp[0] == $prefix) {
 			
@@ -339,7 +342,7 @@
 		return false;
 	}
 	
-	public function autoupdate($id, $separator, $validator = false, $from = null, $table = null) {
+	public function autoupdate($id, $prefix = 'db', $separator = '_', $from = null, $table = null) {
 	
 		$this->autoAdd($prefix, $separator, $from, $table);
 		
