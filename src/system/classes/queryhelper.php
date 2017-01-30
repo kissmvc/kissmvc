@@ -289,7 +289,7 @@
 			//db_name_string_200
 			//db_name_string_10_200
 			
-			if (count($temp) > 1) {
+			if (count($temp) > 1 && $temp[0] == $prefix) {
 			
 				$field_name = $temp[1];
 				
