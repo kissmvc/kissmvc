@@ -107,7 +107,7 @@ class KissApp {
 			exit();
 		};
 		
-		//helpers - make helper class with functions and pass page to it
+		//append function to get path to assets
 		$this->page->asset = function($url) {
 			return $this->folder.'/'.$url;
 		};
