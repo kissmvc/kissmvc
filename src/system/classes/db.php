@@ -188,12 +188,14 @@ class Database { //implements ArrayAccess
   	}
 	
 	public function select($table, $fieldsorid = '*', $idorwhere = '', $limit = null, $offset = null, $order = '') {
-	
-		if (is_array($fields)) {
-			$fields = '`'.implode('`, `', $fields).'`';
+		
+		$fields = '*';
+		
+		if (is_array($fieldsorid)) {
+			$fields = '`'.implode('`, `', $fieldsorid).'`';
 		}
 		
-		if (empty($fields)) {
+		if (empty($fieldsorid)) {
 			$fields = '*';
 		}
 		
@@ -277,7 +279,7 @@ class Database { //implements ArrayAccess
 				$vals .= "{$k}='{$v}'";
 			}
 			
-			$sql = 'UPDATE '.$table.' SET '.$vals.' WHERE `'.$id_field.'` = '.$id;
+			$sql = 'UPDATE '.$table.' SET '.$vals.' WHERE `'.$id_field.'` = '.(int)$id;
 			
 			$this->debugQuery($sql);
 			
@@ -299,7 +301,7 @@ class Database { //implements ArrayAccess
 		$table = $this->prefix.$table;
 		$id_field = $this->schema[$table];
 	
-		$sql = 'DELETE FROM '.$table.' WHERE `'.$id_field.'` = '.$id;
+		$sql = 'DELETE FROM '.$table.' WHERE `'.$id_field.'` = '.(int)$id;
 		
 		$this->debugQuery($sql);
 		
