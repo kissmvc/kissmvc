@@ -165,14 +165,19 @@ class KissApp {
 		$page = &$this->page;
 
 		//login handler - redirect to login page if enabled
-		/*if (!isset($page->session->data['kiss_loged']) && $page->page != 'login' && (defined('DO_LOGIN') && DO_LOGIN == true)) {
+		if ($page->session->get('kiss_loged') != 1 && $page->page != 'login' && (defined('DO_LOGIN') && DO_LOGIN == true)) {
 		
 			header('Location: index.php?page=login');
 			exit();
-		}*/
+		}
 		
 		//run router
 		$found = $this->router->run($page);
+		
+		//load main app functions file
+		if (is_readable($page->root.'/app/_functions.php')) {
+			include_once($page->root.'app/_functions.php');
+		}
 		
 		//load main app init handler
 		if (is_readable($page->root.'/app/_init.php')) {
