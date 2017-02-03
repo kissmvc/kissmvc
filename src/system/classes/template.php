@@ -44,7 +44,7 @@ class Template {
 			
     	} else {
 		
-			trigger_error('Error: Template file '.$tpl.' not found!');
+			trigger_error('Error: Template file '.$tpl.' not found!', E_USER_ERROR);
 			exit();
 			
     	}	
