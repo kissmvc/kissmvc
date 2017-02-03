@@ -7,7 +7,9 @@
 	Description: Super QueryHelper class
 */
 
- class QueryHelper {
+defined('SYSTEM_ROOT') OR exit('No direct script access allowed');
+
+class QueryHelper {
 
 	private $selectables = array();
 	private $table;
@@ -188,6 +190,14 @@
 		return $this;
 	}
 	
+	public function addImage($name, $upload_to) {
+		//needs implementation
+	}
+	
+	public function addFile($name, $upload_to) {
+		//needs implementation
+	}
+	
 	public function addValidator($name, $value) {
 		if (empty($this->validator)) {
 			$this->validator = new Validator();
@@ -263,6 +273,17 @@
 	public function update($id) {
 		if (count($this->values) > 0 && $this->isValid()) {
 			return $this->page->db->update($this->table, $this->values, $id);
+		}
+		return false;
+	}
+	
+	public function insertupdate($id) {
+		if (count($this->values) > 0 && $this->isValid()) {
+			if ((int)$id > 0) {
+				return $this->page->db->update($this->table, $this->values, $id);
+			} else {
+				return $this->page->db->insert($this->table, $this->values);
+			}
 		}
 		return false;
 	}
