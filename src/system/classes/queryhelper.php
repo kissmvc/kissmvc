@@ -30,7 +30,7 @@ class QueryHelper {
 	public function __construct(&$page, $table = null) {
 	
 		if (empty($page)) {
-			throw new Exception('QueryHelper constructor require page object!', E_USER_ERROR);
+			trigger_error('QueryHelper constructor require page object!', E_USER_ERROR);
 		}
 		
 		$this->page = $page;
