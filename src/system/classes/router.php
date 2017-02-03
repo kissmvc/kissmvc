@@ -7,32 +7,59 @@
 	Note: Thanks to AltoRouter
 */
 
+defined('SYSTEM_ROOT') OR exit('No direct script access allowed');
+
 class Router extends AltoRouter {
-
+	
+	private $_params = array();
+	
 	public function __construct(&$page = null) {
+	
 		parent::__construct();
+		
+		//add some new route definitions
+		parent::addMatchTypes(array('is' => '(\d+)-([-\w]+)'));
+		
 	}
-
+	
 	public function route($url = '/', &$closure, $name = null, $method = 'POST|GET') {
 		parent::map($method, $url, $closure, $name);
 	}
-
+	
 	public function setRoutes($routes) {
 		$this->routes = $routes;
 	}
 	
-	public function run($page = null) {
+	public function getUrl($name, $params = array()) {
+		return parent::generate($name, $params);
+	}
+	
+	public function getParams($key = null) {
+		if (!empty($key)) {
+			return $this->_params[$key];
+		}
+		return $this->_params;
+	}
+	
+	public function run(&$page = null) {
 	
 		// match current request url
 		$match = $this->match();
 		
-		//append page object for closure first parameter
+		//append page object for closure as first parameter
 		if ($page && $match) {
+		
 			if (is_array($match['params'])) {
+			
+				$page->params = $this->_params = $match['params'];
+				$page->from->setParams($match['params']);
+				
 				$match['params'] = array('page' => &$page) + $match['params'];
+				
 			} else {
 				$match['params'] = array('page' => &$page);
 			}
+			
 		}
 		
 		//call closure from route to setup page and action
