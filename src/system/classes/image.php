@@ -7,6 +7,8 @@
 	Note: Thanks to Nette for inspiration
 */
 
+defined('SYSTEM_ROOT') OR exit('No direct script access allowed');
+
 class Image {
 
 	const FIT = 0; //same or smaller
