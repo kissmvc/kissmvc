@@ -7,6 +7,8 @@
 	Description: Main Database module, MySqli used
 */
 
+defined('SYSTEM_ROOT') OR exit('No direct script access allowed');
+
 class Database { //implements ArrayAccess
 
 	public $log_query = false;
@@ -208,6 +210,8 @@ class Database { //implements ArrayAccess
 		
 		if (is_int($idorwhere)) {
 			$where = $this->schema[$table].' = '.$idorwhere;
+		} else {
+			$where = $idorwhere;
 		}
 		
 		$sql = '';
@@ -371,6 +375,26 @@ class Database { //implements ArrayAccess
 	
 	public function connected() {
 		return $this->server->ping();
+	}
+	
+	public function datetime($date = null) {
+		if (empty($date)) {
+			return date('Y-m-d H:i:s');
+		} else {
+			return date('Y-m-d H:i:s', strtotime($date));
+		}
+	}
+	
+	public function date($date = null) {
+		if (empty($date)) {
+			return date('Y-m-d');
+		} else {
+			return date('Y-m-d', strtotime($date));
+		}
+	}
+	
+	public function now() {
+		return date('Y-m-d H:i:s');
 	}
 	
   	public function count() {
