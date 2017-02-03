@@ -7,8 +7,6 @@
 	Note: Thanks to Nette for inspiration
 */
 
-defined('SYSTEM_ROOT') OR exit('No direct script access allowed');
-
 class Image {
 
 	const FIT = 0; //same or smaller
@@ -39,7 +37,7 @@ class Image {
 		if (file_exists($file)) {
 		
 			if (!extension_loaded('gd')) {
-				throw new Exception('PHP extension GD is required, please install and enable it.');
+				trigger_error('PHP extension GD is required, please install and enable it.');
 			}
 			$this->file = $file;
 			
@@ -63,14 +61,14 @@ class Image {
 					break;
 				   
 				default:
-					throw new Exception('Image Type is not compatible.');
+					trigger_error('Image Type is not compatible.');
 					break;
 			}
 			
 			imagealphablending($this->image, true);
 			
 		} else {
-			throw new Exception('File does not exist.');
+			trigger_error('File does not exist.');
 		}
 		
 		return $this;
@@ -132,7 +130,7 @@ class Image {
 		if ($flags & self::STRETCH) { // non-proportional
 		
 			if (empty($new_width) || empty($new_height)) {
-				throw new Exception('Both width and height must be specified.');
+				trigger_error('Both width and height must be specified.');
 			}
 			
 			if ($flags & self::SHRINK_ONLY) {
@@ -143,7 +141,7 @@ class Image {
 		} else { // proportional
 		
 			if (empty($new_width) && empty($new_height)) {
-				throw new Exception('At least width or height must be specified.');
+				trigger_error('At least width or height must be specified.');
 			}
 			
 			$scale = array();
@@ -330,12 +328,12 @@ class Image {
 					imagegif($this->image, $filename);
 					break;
             	default:
-            	    throw new Exception('Only JPG, PNG and GIF is available for save.');
+            	    trigger_error('Only JPG, PNG and GIF is available for save.');
             		break;
             }
 			
         } catch (Exception $e) {
-            throw new Exception($e);
+            trigger_error($e->getMessage());
         }
 		
 		return $this;
