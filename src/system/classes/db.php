@@ -300,12 +300,18 @@ class Database { //implements ArrayAccess
 		}
   	}
 	
-	public function delete($table, $id) {
+	public function delete($table, $idorwhere = '') {
 	
 		$table = $this->prefix.$table;
 		$id_field = $this->schema[$table];
-	
-		$sql = 'DELETE FROM '.$table.' WHERE `'.$id_field.'` = '.(int)$id;
+		
+		if (is_int($idorwhere)) {
+			$where = '`'.$this->schema[$table].'` = '.(int)$idorwhere;
+		} else {
+			$where = $idorwhere;
+		}
+		
+		$sql = 'DELETE FROM '.$table.' WHERE `'.$where;
 		
 		$this->debugQuery($sql);
 		
