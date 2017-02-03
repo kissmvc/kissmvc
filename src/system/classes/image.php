@@ -37,7 +37,7 @@ class Image {
 		if (file_exists($file)) {
 		
 			if (!extension_loaded('gd')) {
-				trigger_error('PHP extension GD is required, please install and enable it.');
+				trigger_error('PHP extension GD is required, please install and enable it.', E_USER_ERROR);
 			}
 			$this->file = $file;
 			
@@ -61,14 +61,14 @@ class Image {
 					break;
 				   
 				default:
-					trigger_error('Image Type is not compatible.');
+					trigger_error('Image Type is not compatible.', E_USER_ERROR);
 					break;
 			}
 			
 			imagealphablending($this->image, true);
 			
 		} else {
-			trigger_error('File does not exist.');
+			trigger_error('File does not exist.', E_USER_ERROR);
 		}
 		
 		return $this;
@@ -130,7 +130,7 @@ class Image {
 		if ($flags & self::STRETCH) { // non-proportional
 		
 			if (empty($new_width) || empty($new_height)) {
-				trigger_error('Both width and height must be specified.');
+				trigger_error('Both width and height must be specified.', E_USER_ERROR);
 			}
 			
 			if ($flags & self::SHRINK_ONLY) {
@@ -141,7 +141,7 @@ class Image {
 		} else { // proportional
 		
 			if (empty($new_width) && empty($new_height)) {
-				trigger_error('At least width or height must be specified.');
+				trigger_error('At least width or height must be specified.', E_USER_ERROR);
 			}
 			
 			$scale = array();
@@ -328,12 +328,12 @@ class Image {
 					imagegif($this->image, $filename);
 					break;
             	default:
-            	    trigger_error('Only JPG, PNG and GIF is available for save.');
+            	    trigger_error('Only JPG, PNG and GIF is available for save.', E_USER_ERROR);
             		break;
             }
 			
         } catch (Exception $e) {
-            trigger_error($e->getMessage());
+            trigger_error($e->getMessage(), E_USER_ERROR);
         }
 		
 		return $this;
