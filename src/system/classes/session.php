@@ -6,6 +6,8 @@
 	Version: 1.0
 */
 
+defined('SYSTEM_ROOT') OR exit('No direct script access allowed');
+
 class Session implements ArrayAccess {
 	
 	private $container = array();
