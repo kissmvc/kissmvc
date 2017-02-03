@@ -166,7 +166,7 @@ class Database { //implements ArrayAccess
 		}
   	}
 	
-	public function select($table, $fieldsorid = '*', $idorwhere = '', $limit = null, $offset = null, $order = '') {
+	public function select($table, $fieldsorid = '*', $idorwhere = null, $limit = null, $offset = null, $order = '') {
 		
 		$fields = '*';
 		
@@ -187,7 +187,7 @@ class Database { //implements ArrayAccess
 		
 		if (is_int($idorwhere)) {
 			$where = $this->schema[$table].' = '.$idorwhere;
-		} else {
+		} elseif (is_string($idorwhere)) {
 			$where = $idorwhere;
 		}
 		
