@@ -142,30 +142,7 @@ class Database { //implements ArrayAccess
 			
 				if (is_object($result)) {
 				
-					$i = 0;
-					
-					$data = array();
-					
-					while ($row = $result->fetch_object()) {
-						$data[$i] = $row;
-						
-						$i++;
-					}
-					
-					$output = new stdObject();
-					$output->row = isset($data[0]) ? $data[0] : array();
-					$output->rows = $data;
-					$output->count = $result->num_rows;
-					
-					$output->setDefault($output->rows);
-					
-					$result->close();
-					
-					$this->crows = $i;
-					
-					unset($data);
-					
-					return $output;
+					return $this->convertResult($result);
 					
 				} else {
 				
@@ -183,7 +160,7 @@ class Database { //implements ArrayAccess
 		} catch (Exception $e) {
 		
 			if (!$this->check()) {
-				throw $e;
+				trigger_error($e->getMessage(), E_USER_ERROR);
 			}
 			
 		}
@@ -221,7 +198,11 @@ class Database { //implements ArrayAccess
 		$sql .= (!empty($limit) ? ' LIMIT '.(int)$limit.' ': '');
 		$sql .= (!empty($offset) ? ' OFFSET '.(int)$offset.' ': '');
 		
-		return $this->query($sql);
+		$this->debugQuery($sql);
+		
+		$result = $this->server->query($sql);
+		
+		return $this->convertResult($result);
 		
   	}
 	
@@ -433,5 +414,39 @@ class Database { //implements ArrayAccess
 		}
 	}
 
+	private function convertResult($result) {
+	
+		if (is_object($result)) {
+		
+			$i = 0;
+			
+			$data = array();
+			
+			while ($row = $result->fetch_object()) {
+				$data[$i] = $row;
+				
+				$i++;
+			}
+			
+			$output = new stdObject();
+			$output->row = isset($data[0]) ? $data[0] : array();
+			$output->rows = $data;
+			$output->count = $result->num_rows;
+			
+			$output->setDefault($output->rows);
+			
+			$result->close();
+			
+			$this->crows = $i;
+			
+			unset($data);
+			
+			return $output;
+			
+		} else {
+			return false;
+		}
+		
+	}
 }
 
