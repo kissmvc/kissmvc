@@ -7,6 +7,8 @@
 	Description: Main Validation & Sanitization class
 */
 
+defined('SYSTEM_ROOT') OR exit('No direct script access allowed');
+
 class Validator {
 
 	private $validators = array();
@@ -193,5 +195,4 @@ class Validator {
     }
 
 }
-
 
