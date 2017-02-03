@@ -311,7 +311,7 @@ class Database { //implements ArrayAccess
 			$where = $idorwhere;
 		}
 		
-		$sql = 'DELETE FROM '.$table.' WHERE `'.$where;
+		$sql = 'DELETE FROM '.$table.' WHERE '.$where;
 		
 		$this->debugQuery($sql);
 		
