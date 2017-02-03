@@ -66,7 +66,7 @@ class Database { //implements ArrayAccess
 		}
 		
 		if ($this->server->connect_error) {
-      		throw new Exception('Error: Database connection error - ' . $this->server->connect_errno . ': ' . $this->server->connect_error);
+      		trigger_error('Error: Database connection error - ' . $this->server->connect_errno . ': ' . $this->server->connect_error);
 		}
 		
 		$this->server->query("SET NAMES 'utf8'");
@@ -175,7 +175,7 @@ class Database { //implements ArrayAccess
 				
 			} else {
 			
-				throw new Exception('Database error - '.$this->server->errno.': '.$this->server->error.' - '.$sql, E_USER_ERROR);
+				trigger_error('Database error - '.$this->server->errno.': '.$this->server->error.' - '.$sql, E_USER_ERROR);
 				exit();
 				
 			}
@@ -242,11 +242,11 @@ class Database { //implements ArrayAccess
 			if (!$this->server->errno) {
 				return ($result === true ? $this->server->insert_id : false);
 			} else {
-				throw new Exception('Database error - Insert failed - '.$this->server->errno.': '.$this->server->error, E_USER_ERROR);
+				trigger_error('Database error - Insert failed - '.$this->server->errno.': '.$this->server->error, E_USER_ERROR);
 			}
 			
 		} else {
-			throw new Exception('Database error - Values must be array!', E_USER_ERROR);
+			trigger_error('Database error - Values must be array!', E_USER_ERROR);
 		}
 		
   	}
@@ -262,7 +262,7 @@ class Database { //implements ArrayAccess
 			}
 			
 		} else {
-			throw new Exception('Database error - Values must be array!', E_USER_ERROR);
+			trigger_error('Database error - Values must be array!', E_USER_ERROR);
 		}
   	}
 	
@@ -292,11 +292,11 @@ class Database { //implements ArrayAccess
 			if (!$this->server->errno) {
 				return $result;
 			} else {
-				throw new Exception('Database error - Update failed - '.$this->server->errno.': '.$this->server->error, E_USER_ERROR);
+				trigger_error('Database error - Update failed - '.$this->server->errno.': '.$this->server->error, E_USER_ERROR);
 			}
 			
 		} else {
-			throw new Exception('Database error - Values must be array!', E_USER_ERROR);
+			trigger_error('Database error - Values must be array!', E_USER_ERROR);
 		}
   	}
 	
@@ -314,7 +314,7 @@ class Database { //implements ArrayAccess
 		if (!$this->server->errno) {
 			return $result;
 		} else {
-			throw new Exception('Database error - Delete failed - '.$this->server->errno.': '.$this->server->error, E_USER_ERROR);
+			trigger_error('Database error - Delete failed - '.$this->server->errno.': '.$this->server->error, E_USER_ERROR);
 		}
   	}
 	
