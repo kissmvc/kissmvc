@@ -7,18 +7,25 @@
 	Description: Main "Request" class
 */
 
+defined('SYSTEM_ROOT') OR exit('No direct script access allowed');
+
 class Input {
 	
 	public $request = null;
 
 	private $value = null;
-	private $from = '';
+	private $from = null;
+	private $key = '';
 	private $page = null;
 	private $tmpname = '';
 	private $filename = '';
 	private $filesize = null;
 	private $filetype = null;
 	private $error = null;
+	
+	private $params = array();
+	
+	private $laste_error = '';
 
 	public function __construct(&$page = null) {
 	
@@ -42,12 +49,33 @@ class Input {
 		return $this->value;
 	}
 	
-	public function get($from, $default = null, $escape = false) {
+	public function __isset($param) {
+		return isset($this->from[$param]);
+	}
 	
-		$this->from = 'GET';
+	public function method($allow_override = true) {
+	
+		$method = (isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'GET');
 		
-		if (isset($_GET[$from])) {
-			$this->value = $_GET[$from];
+		if ($allow_override && $method === 'POST') {
+		
+			if (isset($_SERVER['X_HTTP_METHOD_OVERRIDE'])) {
+				$method = (isset($_SERVER['X_HTTP_METHOD_OVERRIDE']) ? $_SERVER['X_HTTP_METHOD_OVERRIDE'] : $method);
+			}
+			
+			$method = strtoupper($method);
+		}
+		
+		return $method;
+	}
+	
+	public function get($key, $default = null, $escape = false) {
+	
+		$this->from = &$_GET;
+		$this->key = $key;
+		
+		if (isset($_GET[$key])) {
+			$this->value = $_GET[$key];
 		} else {
 			$this->value = $default;
 		}
@@ -58,12 +86,13 @@ class Input {
 		
 	}
 	
-	public function post($from, $default = null, $escape = false) {
+	public function post($key, $default = null, $escape = false) {
 	
-		$this->from = 'POST';
+		$this->from = &$_POST;
+		$this->key = $key;
 		
-		if (isset($_POST[$from])) {
-			$this->value = $_POST[$from];
+		if (isset($_POST[$key])) {
+			$this->value = $_POST[$key];
 		} else {
 			$this->value = $default;
 		}
@@ -74,20 +103,21 @@ class Input {
 		
 	}
 	
-	public function files($from, $escape = false) { //add array handling
+	public function files($key, $escape = false) { //add array handling
 	
-		$this->from = 'FILES';
+		$this->from = &$_FILES;
+		$this->key = $key;
 		
-		if (isset($_FILES[$from])) {
+		if (!empty($key) && isset($_FILES[$key])) {
 			
-			$this->value = $_FILES[$from];
-			$this->filename = $_FILES[$from]['name'];
-			$this->filesize = (float)$_FILES[$from]['size'];
-			$this->filetype = $_FILES[$from]['type'];
-			$this->tmpname = $_FILES[$from]['tmp_name'];
-			$this->error = $_FILES[$from]['error'];
+			$this->value = $_FILES[$key];
+			$this->filename = $_FILES[$key]['name'];
+			$this->filesize = (float)$_FILES[$key]['size'];
+			$this->filetype = $_FILES[$key]['type'];
+			$this->tmpname = $_FILES[$key]['tmp_name'];
+			$this->error = $_FILES[$key]['error'];
 			
-			if ($escape) { $this->filename = $this->myescape($this->filename); }
+			if ($escape === true) { $this->filename = $this->myescape($this->filename); }
 			
 		}
 		
@@ -95,8 +125,29 @@ class Input {
 		
 	}
 	
-	public function is_set() {
-		return isset($this->value);
+	public function params($key, $default = null, $escape = false) {
+	
+		$this->from = &$this->params;
+		$this->key = $key;
+		
+		if (isset($this->params[$key])) {
+			$this->value = $this->params[$key];
+		} else {
+			$this->value = $default;
+		}
+		
+		if ($escape) { $this->value = $this->myescape($this->value); }
+		
+		return $this;
+		
+	}
+	
+	public function setParams($value) {
+		$this->params = $value;
+	}
+	
+	public function exists() {
+		return isset($this->from[$this->key]);
 	}
 	
 	public function val($escape = false) {
@@ -108,15 +159,108 @@ class Input {
 	}
 	
 	public function filename() {
+		if ($this->from != $_FILES) {
+			return false;
+		}
 		return (string)$this->filename;
 	}
 	
-	public function copyto($to) {
-		if ($this->filename) {
-			return move_uploaded_file($this->filename, $to);
-		} else {
+	public function filesize() {
+		if ($this->from != $_FILES) {
 			return false;
 		}
+		return $this->filesize;
+	}
+	
+	public function filetype() {
+		if ($this->from != $_FILES) {
+			return false;
+		}
+		return $this->filetype;
+	}
+	
+	public function tmpname() {
+		if ($this->from != $_FILES) {
+			return false;
+		}
+		return (string)$this->tmpname;
+	}
+	
+	public function fileerror() {
+		if ($this->from != $_FILES) {
+			return false;
+		}
+		return $this->error;
+	}
+	
+	public function upload($to, $key = null, $images = false) {
+		return $this->copyto($to, $key, $images);
+	}
+	
+	public function uploadAll($to, $images = false) {
+		return $this->uploadFiles($to, $images);
+	}
+	
+	public function uploadFiles($to, $images = false) {
+	
+		$ret = false;
+		
+		foreach($_FILES as $key => $file) {
+		
+			$ret = $this->copyto($to, $key, $images);
+			
+			if ($ret === false) {
+				$this->last_error = 'Upload error on file with key: '.$key.', filename: '.$file['name'].', Error: '.$this->last_error;
+				return false;
+			}
+		}
+		
+		return $ret;
+	}
+	
+	public function uploadImage($to, $key = null) {
+		return $this->copyto($to, $key, true);
+	}
+	
+	public function uploadImages($to) {
+		return $this->uploadFiles($to, true);
+	}
+	
+	public function copyto($to, $key = null, $images = false) {
+	
+		$this->last_error = '';
+		
+		if ($this->from != $_FILES) {
+			$this->last_error = 'Not called from file()';
+			return false;
+		}
+		
+		if (empty($key)) {
+			$key = $this->key;
+		}
+		
+		if (!empty($key) && isset($_FILES[$key]) && $_FILES[$key]['error'] == UPLOAD_ERR_OK) {
+		
+			if ($images == true && $this->isImage($_FILES[$key]['name']) == false) {
+				return (-1);
+			}
+			
+			if (is_dir($to)) {
+				$to = $to.'/'.$_FILES[$key]['name'];
+			}
+			
+			if (!is_dir(dirname($to))) {
+				$this->last_error = 'Upload directory does not exist!'; //throw error??
+				return false;
+			}
+			
+			return move_uploaded_file($_FILES[$key]['tmp_name'], $to);
+			
+		} else {
+			$this->last_error = 'Error on file upload - key: ['.$key.'], isset(key): ['.(isset($_FILES[$key]) ? 'true': 'false').'], Error: ['.($_FILES[$key]['error'] == 0 ? '0' : $_FILES[$key]['error']).']';
+			return false;
+		}
+		
 	}
 	
 	public function escape($return = true) {
@@ -297,6 +441,39 @@ class Input {
 		} else {
 			return $this;
 		}
+	}
+	
+	public function lastError() {
+		return $this->last_error;
+	}
+	
+	public function isAjax() {
+		//return (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest');
+		return (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest');
+	}
+	
+	public function isSecure() {
+		return ($_SERVER['HTTPS'] == true);
+	}
+	
+	public function getUserAgent() {
+		return $_SERVER['HTTP_USER_AGENT'];
+	}
+	
+	public function ip() {
+		return $_SERVER['REMOTE_ADDR'];
+	}
+	
+	public function uri() {
+		return (isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '/');
+	}
+	
+	public function referer() {
+		return (isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '');
+	}
+	
+	private function isImage($filename) {
+		return (bool) ((preg_match('#\.(gif|jpg|jpeg|jpe|png)$#i', $filename)) ? true : false);
 	}
 	
 }
