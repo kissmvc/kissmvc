@@ -104,8 +104,13 @@ class KissApp {
 		
 		//append redirect function to page object
 		$this->page->redirect = function($url, $code = 302, $inc_folder = true) {
-			header('Location: '.(str_replace('//', '/', ($inc_folder ? '/'.$this->folder : '').'/'.$url)), true, $code);
+			header('Location: '.str_replace('//', '/', (($inc_folder ? '/'.$this->folder : '').'/'.$url)), true, $code);
 			exit();
+		};
+		
+		//not found handler
+		$this->page->notfound = function() {
+			$this->page->page = null;
 		};
 		
 		//append function to get path to assets
@@ -199,11 +204,22 @@ class KissApp {
 		
 		//try router
 		if (!($this->page->from->get('page')->exists() || $this->page->from->get('action')->exists() || $page->uri == '/')) {
+		
 			$found = $this->router->run($page);
+			
+			if (!$found && $page->uri != '/') {
+				$this->page->page = null;
+			}
+			
+		}
+		
+		//if querystring page & action exists, is privileged, redirect
+		if ($this->page->uri != '/' && ($this->page->from->get('page')->exists() || ($this->page->from->get('page')->exists() && $this->page->from->get('action')->exists()))) {
+			$page->redirect('index.php?page='.$this->page->from->get('page')->val().($this->page->from->get('action')->exists() ? '&'.$this->page->from->get('action')->val(): ''));
 		}
 		
 		//login handler - redirect to login page if enabled
-		if ($page->session->get('kiss_loged') != 1 && $page->page != 'login' && (defined('DO_LOGIN') && DO_LOGIN == true)) {
+		if ((bool)$page->session->get('kiss_loged') != true && $page->page != 'login' && (defined('DO_LOGIN') && DO_LOGIN == true)) {
 			$this->redirect('index.php?page=login');
 		}
 		
@@ -239,7 +255,7 @@ class KissApp {
 			} else { //page does not exist!
 				
 				unset($appclass);
-				$this->printErrorPage();
+				$this->showErrorPage();
 				exit();
 			
 			}
@@ -252,19 +268,19 @@ class KissApp {
 			
 		} else {
 			
-			$this->printErrorPage();
+			$this->showErrorPage();
 			exit();
 			
 		}
 		
 		//cleanup $page object before pass to view
+		//unset($page->from);
 		unset($page->router);
 		unset($page->db);
 		unset($page->log);
-		unset($page->from);
 		
 		//view - process template
-		if (is_readable($page->root.'/theme/'.$page->tpl.'.tpl')) {
+		if (is_readable($page->root.'/theme/'.$page->tpl.'.tpl') && $this->page->page != null) {
 			
 			$tpl = new Template($page);
 			
@@ -272,7 +288,7 @@ class KissApp {
 			
 		} else {
 			
-			$this->printErrorPage();
+			$this->showErrorPage();
 			exit();
 			
 		}
@@ -311,10 +327,20 @@ class KissApp {
 	
 	//if you need alto router object
 	public function setSubFolder($folder) {
+	
+		if ($folder[0] != '/') { 
+			$folder = '/'.$folder;
+		}
+		
+		if (str_right($folder, 1) == '/')  { 
+			$folder = str_left($folder, strlen($folder) - 1);
+		}
+		
 		$this->router->setBasePath($folder);
 		$this->folder = $folder;
 		$this->page->folder = &$this->folder;
 		$this->page->urlroot = &$this->folder;
+		
 	}
 	
 	//get path to theme folder
@@ -323,7 +349,7 @@ class KissApp {
 	}
 	
 	public function redirect($url, $code = 302, $inc_folder = true) {
-		header('Location: '.(str_replace('//', '/', ($inc_folder ? '/'.$this->folder : '').'/'.$url)), true, $code);
+		header('Location: '.str_replace('//', '/', (($inc_folder ? '/'.$this->folder : '').'/'.$url)), true, $code);
 		exit();
 	}
 	
@@ -345,7 +371,7 @@ class KissApp {
 		return $data;
 	}
 	
-	private function printErrorPage() {
+	private function showErrorPage() {
 	
 		header($_SERVER['SERVER_PROTOCOL'].' 404 Not Found', true, 404);
 		echo '<html>';
