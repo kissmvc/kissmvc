@@ -66,7 +66,7 @@ class Database { //implements ArrayAccess
 		}
 		
 		if ($this->server->connect_error) {
-      		trigger_error('Error: Database connection error - ' . $this->server->connect_errno . ': ' . $this->server->connect_error);
+			trigger_error('Error: Database connection error - ' . $this->server->connect_errno . ': ' . $this->server->connect_error);
 		}
 		
 		$this->server->query("SET NAMES 'utf8'");
