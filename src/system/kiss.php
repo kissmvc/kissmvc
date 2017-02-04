@@ -55,12 +55,36 @@ if (!defined('ERROR_REPORTING')) {
 }
 
 //custom error reporting
-error_reporting(ERROR_REPORTING);
+//error_reporting(ERROR_REPORTING);
+error_reporting(E_ALL);
 set_error_handler('error_handler');
 
 //fix IIS rewrite
 if (isset($_SERVER['HTTP_X_REWRITE_URL'])) {
 	$_SERVER['REQUEST_URI'] = $_SERVER['HTTP_X_REWRITE_URL'];
+}
+
+//try to setup app folder
+if (!defined('APP_FOLDER') && isset($_SERVER['SCRIPT_NAME'])) {
+	$app_folder = dirname($_SERVER['SCRIPT_NAME']);
+	define('APP_FOLDER', $app_folder);
+}
+
+if (!defined('APP_FOLDER') && isset($_SERVER['SCRIPT_FILENAME'])) {
+	$app_folder = str_replace('\\', '/', substr(dirname($_SERVER['SCRIPT_FILENAME']), strlen($_SERVER['DOCUMENT_ROOT'])));
+	define('APP_FOLDER', $app_folder);
+}
+
+if (!defined('APP_FOLDER') && isset($_SERVER['SCRIPT_FILENAME'])) {
+	$app_folder = str_replace('\\', '/', substr(dirname($_SERVER['PATH_TRANSLATED']), strlen($_SERVER['DOCUMENT_ROOT'])));
+	define('APP_FOLDER', $app_folder);
+}
+
+//try to setup SITE_URL
+if (!defined('SITE_URL')) {
+	//$site_url = 'http'.(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 's' : '').'://'.$_SERVER['HTTP_HOST'].($_SERVER['SERVER_PORT'] != 80 && $_SERVER['SERVER_PORT'] != 443 ? $_SERVER['SERVER_PORT']: '').'/';
+	$site_url = (((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) ? 'https://' : 'http://').$_SERVER['HTTP_HOST'].($_SERVER['SERVER_PORT'] != 80 && $_SERVER['SERVER_PORT'] != 443 ? $_SERVER['SERVER_PORT']: '').'/';
+	define('SITE_URL', $site_url);
 }
 
 //vendor classes
@@ -78,5 +102,5 @@ require_once(SYSTEM_ROOT.'classes/template.php');
 require_once(SYSTEM_ROOT.'classes/log.php');
 require_once(SYSTEM_ROOT.'classes/image.php');
 require_once(SYSTEM_ROOT.'classes/mail.php');
-
+require_once(SYSTEM_ROOT.'classes/queryhelper.php');
 
