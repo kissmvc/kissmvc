@@ -31,7 +31,7 @@ function gethtml($data) {
     return html_entity_decode(stripslashes($data), ENT_QUOTES, 'UTF-8');
 }
 
-function srt_left($str, $length) {
+function str_left($str, $length) {
 	if (function_exists('mb_substr')) {
 		return mb_substr($str, 0, $length);
 	}
