@@ -7,6 +7,8 @@
 	Description: Main module
 */
 
+defined('SYSTEM_ROOT') OR exit('No direct script access allowed');
+
 class KissApp {
 
 	/* public vars */
@@ -49,7 +51,7 @@ class KissApp {
 		}
 		
 		//encoding
-		if (function_exists(mb_internal_encoding)) {
+		if (function_exists('mb_internal_encoding')) {
 			mb_internal_encoding('UTF-8');
 		}
 		
@@ -60,7 +62,6 @@ class KissApp {
 			$_POST = $this->clean($_POST, true);
 			$_REQUEST = $this->clean($_REQUEST, true);
 			$_COOKIE = $this->clean($_COOKIE, true);
-			$_FILES = $this->clean($_FILES);
 			$_SERVER = $this->clean($_SERVER);
 			
 		}
@@ -102,14 +103,39 @@ class KissApp {
 		}
 		
 		//append redirect function to page object
-		$this->page->redirect = function($url, $code = 302) {
-			header('Location: '.$url, true, $code);
+		$this->page->redirect = function($url, $code = 302, $inc_folder = true) {
+			header('Location: '.(str_replace('//', '/', ($inc_folder ? '/'.$this->folder : '').'/'.$url)), true, $code);
 			exit();
 		};
 		
 		//append function to get path to assets
-		$this->page->asset = function($url) {
-			return $this->folder.'/'.$url;
+		$this->page->assets = function($url) {
+			return str_replace('//', '/', $this->folder.'/'.$url);
+		};
+		
+		//set route helper
+		$this->page->setRoute = function($_page = 'index', $_action = 'show') {
+			$this->page->page = $_page;
+			$this->page->action = $_action;
+		};
+		
+		//get routed url
+		$this->page->getRoute = function($name, $route) {
+		
+			$exploded = array();
+			if (is_string($route)) {
+				parse_str($route, $exploded);
+			} else {
+				$exploded = &$route;
+			}
+			return $this->router->getUrl($name, $exploded);
+		};
+		
+		//get 'classic' url with query string
+		$this->page->getUrl = function($route = '') {
+			$route = str_replace('index.php', '', $route);
+			$route = str_replace('?', '', $route);
+			return str_replace('//', '/', '/'.$this->folder.(!empty($route) ? '/?'.$route : '/'));
 		};
 		
 		//initialize logger class
@@ -123,6 +149,7 @@ class KissApp {
 		
 		//initialize router
 		$this->router = new Router();
+		$this->page->router = &$this->router;
 		
 		//initialize db class
 		$this->page->db = new Database();
@@ -163,16 +190,22 @@ class KissApp {
 		$tpl = null;
 		
 		$page = &$this->page;
-
-		//login handler - redirect to login page if enabled
-		if ($page->session->get('kiss_loged') != 1 && $page->page != 'login' && (defined('DO_LOGIN') && DO_LOGIN == true)) {
 		
-			header('Location: index.php?page=login');
-			exit();
+		//fill uri
+		$this->page->uri = str_replace('index.php', '', str_replace($this->folder, '', strtok($_SERVER['REQUEST_URI'], '?')));
+		
+		//fill params from uri
+		$this->page->parts = explode('/', trim($this->page->uri, '/'));
+		
+		//try router
+		if (!($this->page->from->get('page')->exists() || $this->page->from->get('action')->exists() || $page->uri == '/')) {
+			$found = $this->router->run($page);
 		}
 		
-		//run router
-		$found = $this->router->run($page);
+		//login handler - redirect to login page if enabled
+		if ($page->session->get('kiss_loged') != 1 && $page->page != 'login' && (defined('DO_LOGIN') && DO_LOGIN == true)) {
+			$this->redirect($this->page->getUrl('index.php?page=login'));
+		}
 		
 		//load main app functions file
 		if (is_readable($page->root.'/app/_functions.php')) {
@@ -257,8 +290,8 @@ class KissApp {
 	}
 	
 	//router
-	public function route($ulr, $closure, $name = null, $method = 'POST|GET') {
-		$this->router->route($ulr, $closure, $method);
+	public function route($url, $closure, $name = null, $method = 'POST|GET') {
+		$this->router->route($url, $closure, $name, $method);
 	}
 	
 	//if you need use page object
@@ -272,22 +305,26 @@ class KissApp {
 	}
 	
 	//if you need alto router object
+	public function getSubFolder() {
+		return $this->folder;
+	}
+	
+	//if you need alto router object
 	public function setSubFolder($folder) {
 		$this->router->setBasePath($folder);
 		$this->folder = $folder;
 		$this->page->folder = &$this->folder;
+		$this->page->urlroot = &$this->folder;
 	}
 	
 	//get path to theme folder
 	public function assets($url) {
-		return $this->folder.'/'.$url;
+		return str_replace('//', '/', $this->folder.'/'.$url);
 	}
 	
-	public function redirect($url, $code = 302) {
-
-		header('Location: '.$url, true, $code);
+	public function redirect($url, $code = 302, $inc_folder = true) {
+		header('Location: '.(str_replace('//', '/', ($inc_folder ? '/'.$this->folder : '').'/'.$url)), true, $code);
 		exit();
-		
 	}
 	
 	//clean magic quotes & specialchars
