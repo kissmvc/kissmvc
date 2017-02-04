@@ -7,6 +7,8 @@
 	Description: Helper classes
 */
 
+defined('SYSTEM_ROOT') OR exit('No direct script access allowed');
+
 class stdObject extends stdClass implements ArrayAccess, Iterator { //, Iterator
 
 	private $_default = array();
@@ -28,7 +30,7 @@ class stdObject extends stdClass implements ArrayAccess, Iterator { //, Iterator
 		if (isset($args[0]) && isset($this->{$args[0]})) {
 			return $this->{$args[0]};
 		}
-		
+		//throw new Exception("Fatal error: Call to undefined method stdObject::{$args[0]}()");
 		return null;
 	}
 	
@@ -79,6 +81,27 @@ class stdObject extends stdClass implements ArrayAccess, Iterator { //, Iterator
     public function next() {
         next($this->_default);
     }
+	
+}
+
+//extended class for dbResult
+class dbObject extends stdObject {
+	
+	public function &__get($key) {
+		if (isset(parent::$key)) {
+			return parent::$key;
+		} else {
+			if (isset($this->_default[0]->{$key})) {
+				return $this->_default[0]->{$key};
+			}
+			return null;
+			/*if (is_callable($this->{$key})) { //for closure?
+				return $this->{$key}();
+			} else {
+				//return null;
+			}*/
+		}
+	}
 	
 }
 
