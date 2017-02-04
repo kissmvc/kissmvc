@@ -32,14 +32,14 @@ function gethtml($data) {
 }
 
 function srt_left($str, $length) {
-	if (function_exists(mb_substr)) {
+	if (function_exists('mb_substr')) {
 		return mb_substr($str, 0, $length);
 	}
     return substr($str, 0, $length);
 }
 
 function str_right($str, $length) {
-	if (function_exists(mb_substr)) {
+	if (function_exists('mb_substr')) {
 		return mb_substr($str, -$length);
 	}
     return substr($str, -$length);
@@ -47,7 +47,7 @@ function str_right($str, $length) {
 
 function str_truncate($text, $max = 200, $append = '&hellip;') {
 
-	if (function_exists(mb_strlen)) {
+	if (function_exists('mb_strlen')) {
 		if (mb_strlen($text) <= $max) { 
 			return $text;
 		}
@@ -67,24 +67,24 @@ function str_truncate($text, $max = 200, $append = '&hellip;') {
 	$out = substr($text, 0, $max);
 	
 	if (strpos($text, ' ') === false) { 
-		return $out.$append;
+		return rtrim($out).$append;
 	}
 	
-	return preg_replace('/\w+$/','',$out).$append;
+	return rtrim(preg_replace('/\w+$/','',$out)).$append;
 }
 
 function str_contains($str, $what) {
-	if (function_exists(mb_stripos)) {
+	if (function_exists('mb_stripos')) {
 		return mb_stripos($str, $what) !== false;
 	}
     return stripos($str, $what) !== false;
 }
 
 function utf8_strlen($str) {
-	if (function_exists(mb_strlen)) {
+	if (function_exists('mb_strlen')) {
 		return mb_strlen($str, 'UTF-8');
 	}
-	if (function_exists(iconv_strlen)) {
+	if (function_exists('iconv_strlen')) {
 		return iconv_strlen($str, 'UTF-8');
 	}
 	return strlen(utf8_decode($str));
