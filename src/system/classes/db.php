@@ -181,12 +181,12 @@ class Database { //implements ArrayAccess
 		$where = null;
 		$table = $this->prefix.$table;
 		
-		if (is_int($fieldsorid)) {
-			$where = $this->schema[$table].' = '.$fieldsorid;
+		if (is_numeric($fieldsorid)) {
+			$where = $this->schema[$table].' = '.($fieldsorid + 0);
 		}
 		
-		if (is_int($idorwhere)) {
-			$where = $this->schema[$table].' = '.$idorwhere;
+		if (is_numeric($idorwhere)) {
+			$where = $this->schema[$table].' = '.($idorwhere + 0);
 		} elseif (is_string($idorwhere)) {
 			$where = $idorwhere;
 		}
@@ -247,12 +247,18 @@ class Database { //implements ArrayAccess
 		}
   	}
 	
-	public function update($table, $values, $id) {
+	public function update($table, $values, $idorwhere) {
 	
 		if (is_array($values)) {
 		
 			$table = $this->prefix.$table;
 			$id_field = $this->schema[$table];
+			
+			if (is_numeric($idorwhere)) {
+				$where = '`'.$this->schema[$table].'` = '.($idorwhere + 0);
+			} else {
+				$where = $idorwhere;
+			}
 			
 			$values = $this->escape($values);
 			
@@ -264,7 +270,7 @@ class Database { //implements ArrayAccess
 				$vals .= "{$k}='{$v}'";
 			}
 			
-			$sql = 'UPDATE '.$table.' SET '.$vals.' WHERE `'.$id_field.'` = '.(int)$id;
+			$sql = 'UPDATE '.$table.' SET '.$vals.' WHERE '.$where;
 			
 			$this->debugQuery($sql);
 			
@@ -286,8 +292,8 @@ class Database { //implements ArrayAccess
 		$table = $this->prefix.$table;
 		$id_field = $this->schema[$table];
 		
-		if (is_int($idorwhere)) {
-			$where = '`'.$this->schema[$table].'` = '.(int)$idorwhere;
+		if (is_numeric($idorwhere)) {
+			$where = '`'.$this->schema[$table].'` = '.($idorwhere + 0);
 		} else {
 			$where = $idorwhere;
 		}
@@ -431,7 +437,7 @@ class Database { //implements ArrayAccess
 			$output = new dbObject();
 			$output->row = isset($data[0]) ? $data[0] : array();
 			$output->rows = $data;
-			$output->count = $result->num_rows;
+			$output->rowcount = $result->num_rows;
 			
 			$output->setDefault($output->rows);
 			
