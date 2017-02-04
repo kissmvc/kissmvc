@@ -204,7 +204,7 @@ class KissApp {
 		
 		//login handler - redirect to login page if enabled
 		if ($page->session->get('kiss_loged') != 1 && $page->page != 'login' && (defined('DO_LOGIN') && DO_LOGIN == true)) {
-			$this->redirect($this->page->getUrl('index.php?page=login'));
+			$this->redirect('index.php?page=login');
 		}
 		
 		//load main app functions file
