@@ -6,17 +6,11 @@
 	Version: 1.0
 */
 
-//get root
+//setup root
 if (!defined('ROOT')) {
 	$root_path = realpath(dirname(__FILE__));
 	define('ROOT', $root_path.'/');
 }
-
-//define site URL
-define('SITE_URL', 'http://localhost/');
-
-//define folder if app not sits in root, without trailing slash
-//define('APP_FOLDER', '/kiss');
 
 //define database connection
 define('DB_HOST','localhost');
@@ -32,5 +26,11 @@ define('DEBUG_QUERY', true);
 
 //show errors
 define('DISPLAY_ERRORS', false);
+
+//define site URL
+//define('SITE_URL', 'http://localhost/');
+
+//define folder if app not sits in root, without trailing slash
+//define('APP_FOLDER', '/kiss');
 
 ?>
