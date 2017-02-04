@@ -28,7 +28,7 @@ $app->setSubFolder(APP_FOLDER);
 $app->route('/[a:controller]?/[a:action]?/[i:id]?', function(&$page, $controller = 'index', $action = 'show') {
 	$page->page = $controller;
 	$page->action = $action;
-});
+}, 'default');
 
 $app->run();
 
