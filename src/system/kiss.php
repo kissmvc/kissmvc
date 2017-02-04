@@ -65,7 +65,7 @@ if (isset($_SERVER['HTTP_X_REWRITE_URL'])) {
 
 //try to setup app folder
 if (!defined('APP_FOLDER') && isset($_SERVER['SCRIPT_NAME'])) {
-	$app_folder = dirname($_SERVER['SCRIPT_NAME']);
+	$app_folder = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
 	define('APP_FOLDER', $app_folder);
 }
 
