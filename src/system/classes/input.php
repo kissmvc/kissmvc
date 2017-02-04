@@ -9,7 +9,7 @@
 
 defined('SYSTEM_ROOT') OR exit('No direct script access allowed');
 
-class Input {
+class Input implements ArrayAccess {
 	
 	public $request = null;
 
@@ -33,15 +33,15 @@ class Input {
 		
 		$this->request = new stdClass;
 		
-		$this->request->get = $_GET;
-		$this->request->post = $_POST;
-		$this->request->request = $_REQUEST;
-		$this->request->files = $_FILES;
+		$this->request->get = &$_GET;
+		$this->request->post = &$_POST;
+		$this->request->request = &$_REQUEST;
+		$this->request->files = &$_FILES;
 		if (isset($_SESSION)) {
-			$this->request->session = $_SESSION;
+			$this->request->session = &$_SESSION;
 		}
-		$this->request->cookie = $_COOKIE;
-		$this->request->server = $_SERVER;
+		$this->request->cookie = &$_COOKIE;
+		$this->request->server = &$_SERVER;
 		
 	}
 
@@ -51,6 +51,16 @@ class Input {
 	
 	public function __isset($param) {
 		return isset($this->from[$param]);
+	}
+	
+	public function &__get($key) {
+		$this->from = &$this->request->{$key};
+		return $this;
+	}
+	
+	public function __set($key, $value) {
+		$this->from = &$this->request->{$key};
+		return $this;
 	}
 	
 	public function method($allow_override = true) {
@@ -263,7 +273,7 @@ class Input {
 		
 	}
 	
-	public function escape($return = true) {
+	public function escape($return = false) {
 		$this->value = $this->myescape($this->value);
 		if ($return) {
 			return $this->value;
@@ -303,6 +313,23 @@ class Input {
 		}
 		
 		return $data;
+	}
+	
+	public function escaped() {
+		return $this->myescape($this->value);
+	}
+	
+	public function quote($return = false) {
+		$this->value = '\''.$this->value.'\'';
+		if ($return) {
+			return $this->value;
+		} else {
+			return $this;
+		}
+	}
+	
+	public function quoted() {
+		return '\''.$this->myescape($this->value).'\'';
 	}
 	
 	public function as_int($escape = true) {
@@ -471,6 +498,26 @@ class Input {
 	public function referer() {
 		return (isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '');
 	}
+	
+	/* AccessArray methods */
+	
+	public function offsetSet($offset, $value) {
+		$this->from[$offset] = $value;
+    }
+	
+    public function offsetExists($offset) {
+        return isset($this->from[$offset]);
+    }
+	
+    public function offsetUnset($offset) {
+        unset($this->from[$offset]);
+    }
+	
+    public function offsetGet($offset) {
+        return isset($this->from[$offset]) ? $this->from[$offset] : 'null';
+    }
+	
+	/* private functions */
 	
 	private function isImage($filename) {
 		return (bool) ((preg_match('#\.(gif|jpg|jpeg|jpe|png)$#i', $filename)) ? true : false);
