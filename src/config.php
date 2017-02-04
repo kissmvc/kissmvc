@@ -30,7 +30,7 @@ define('DISPLAY_ERRORS', false);
 //define site URL
 //define('SITE_URL', 'http://localhost/');
 
-//define folder if app not sits in root, without trailing slash
+//define subfolder manually if you have problem with autodetection, without trailing slash
 //define('APP_FOLDER', '/kiss');
 
 ?>
