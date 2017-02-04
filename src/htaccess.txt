@@ -1,0 +1,17 @@
+<IfModule mod_rewrite.c>
+	<IfModule mod_negotiation.c>
+		Options -MultiViews
+	</IfModule>
+
+	RewriteEngine On
+
+	RewriteCond %{REQUEST_URI} !(public|theme|app)
+	RewriteCond %{REQUEST_URI} !\.(gif|jpe?g|png|ico|css|js|tiff|robots\.txt)\s [NC]
+
+	RewriteRule ^(.*)/$ $1 [L,R=301]
+
+	RewriteCond %{REQUEST_FILENAME} !-d
+	RewriteCond %{REQUEST_FILENAME} !-f
+	RewriteRule . index.php [L]
+
+</IfModule>
