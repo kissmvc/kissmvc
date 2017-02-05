@@ -1,5 +1,9 @@
 @import url(http://fonts.googleapis.com/css?family=Open+Sans:300italic,400,300,700,800&subset=latin,latin-ext);
 
+/*div { *zoom: 1; }
+div:before, div:after { display: table; content: ""; }
+div:after { clear: both; }*/
+
 html {
 	overflow-y: scroll;
 }
@@ -28,3 +32,25 @@ body {
         padding: 15px 0;
     }
 }
+
+@media (max-device-width: 480px) and (orientation: landscape) { }
+
+@media (max-width: 767px) { }
+
+@media (min-width: 768px) { }
+
+@media (min-width: 992px) { }
+
+@media (min-width: 1200px) { }
+
+
+@media (max-width: 767px) { }
+
+@media (min-width: 768px) and (max-width: 991px) { }
+
+@media (min-width: 992px) and (max-width: 1199px) { }
+
+@media (min-width: 1200px) { }
+
+@media print { }
+
