@@ -2,8 +2,8 @@
 /*
 	This file is part of the KISS Framework
 	Copyright (c) 2016 Anton Pitak (http://www.softpae.com)
-	Module: KISS config file
-	Version: 1.0
+	Module: KISS DB Class
+	Version: 1.0.1
 	Description: Main Database module, MySqli used
 */
 
@@ -66,7 +66,7 @@ class Database { //implements ArrayAccess
 		}
 		
 		if ($this->server->connect_error) {
-			trigger_error('Error: Database connection error - ' . $this->server->connect_errno . ': ' . $this->server->connect_error);
+			trigger_error('Error: Database connection error - ' . $this->server->connect_errno . ': ' . $this->server->connect_error, E_USER_WARNING);
 		}
 		
 		$this->server->query("SET NAMES 'utf8'");
@@ -152,7 +152,7 @@ class Database { //implements ArrayAccess
 				
 			} else {
 			
-				trigger_error('Database error - '.$this->server->errno.': '.$this->server->error.' - '.$sql, E_USER_ERROR);
+				trigger_error('Database error - '.$this->server->errno.': '.$this->server->error.' - '.$sql, E_USER_WARNING);
 				exit();
 				
 			}
@@ -160,7 +160,7 @@ class Database { //implements ArrayAccess
 		} catch (Exception $e) {
 		
 			if (!$this->check()) {
-				trigger_error($e->getMessage(), E_USER_ERROR);
+				trigger_error($e->getMessage(), E_USER_WARNING);
 			}
 			
 		}
@@ -223,11 +223,11 @@ class Database { //implements ArrayAccess
 			if (!$this->server->errno) {
 				return ($result === true ? $this->server->insert_id : false);
 			} else {
-				trigger_error('Database error - Insert failed - '.$this->server->errno.': '.$this->server->error, E_USER_ERROR);
+				trigger_error('Database error - Insert failed - '.$this->server->errno.': '.$this->server->error, E_USER_WARNING);
 			}
 			
 		} else {
-			trigger_error('Database error - Values must be array!', E_USER_ERROR);
+			trigger_error('Database error - Values must be array!', E_USER_WARNING);
 		}
 		
   	}
@@ -243,7 +243,7 @@ class Database { //implements ArrayAccess
 			}
 			
 		} else {
-			trigger_error('Database error - Values must be array!', E_USER_ERROR);
+			trigger_error('Database error - Values must be array!', E_USER_WARNING);
 		}
   	}
 	
@@ -279,11 +279,11 @@ class Database { //implements ArrayAccess
 			if (!$this->server->errno) {
 				return $result;
 			} else {
-				trigger_error('Database error - Update failed - '.$this->server->errno.': '.$this->server->error, E_USER_ERROR);
+				trigger_error('Database error - Update failed - '.$this->server->errno.': '.$this->server->error, E_USER_WARNING);
 			}
 			
 		} else {
-			trigger_error('Database error - Values must be array!', E_USER_ERROR);
+			trigger_error('Database error - Values must be array!', E_USER_WARNING);
 		}
   	}
 	
@@ -307,7 +307,7 @@ class Database { //implements ArrayAccess
 		if (!$this->server->errno) {
 			return $result;
 		} else {
-			trigger_error('Database error - Delete failed - '.$this->server->errno.': '.$this->server->error, E_USER_ERROR);
+			trigger_error('Database error - Delete failed - '.$this->server->errno.': '.$this->server->error, E_USER_WARNING);
 		}
   	}
 	
