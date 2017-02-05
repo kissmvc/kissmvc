@@ -24,8 +24,6 @@ class Input implements ArrayAccess {
 	private $error = null;
 	
 	private $params = array();
-	
-	private $laste_error = '';
 
 	public function __construct(&$page = null) {
 	
@@ -220,7 +218,7 @@ class Input implements ArrayAccess {
 			$ret = $this->copyto($to, $key, $images);
 			
 			if ($ret === false) {
-				$this->last_error = 'Upload error on file with key: '.$key.', filename: '.$file['name'].', Error: '.$this->last_error;
+				trigger_error('Upload error on file with key: '.$key.', filename: '.$file['name'], E_USER_WARNING);
 				return false;
 			}
 		}
@@ -237,11 +235,9 @@ class Input implements ArrayAccess {
 	}
 	
 	public function copyto($to, $key = null, $images = false) {
-	
-		$this->last_error = '';
 		
 		if ($this->from != $_FILES) {
-			$this->last_error = 'Not called from file()';
+			trigger_error('Not called from file()', E_USER_WARNING);
 			return false;
 		}
 		
@@ -260,14 +256,14 @@ class Input implements ArrayAccess {
 			}
 			
 			if (!is_dir(dirname($to))) {
-				$this->last_error = 'Upload directory does not exist!'; //throw error??
+				trigger_error('Upload directory does not exist!', E_USER_WARNING); //throw error??
 				return false;
 			}
 			
 			return move_uploaded_file($_FILES[$key]['tmp_name'], $to);
 			
 		} else {
-			$this->last_error = 'Error on file upload - key: ['.$key.'], isset(key): ['.(isset($_FILES[$key]) ? 'true': 'false').'], Error: ['.($_FILES[$key]['error'] == 0 ? '0' : $_FILES[$key]['error']).']';
+			trigger_error('Error on file upload - key: ['.$key.'], isset(key): ['.(isset($_FILES[$key]) ? 'true': 'false').'], Error: ['.($_FILES[$key]['error'] == 0 ? '0' : $_FILES[$key]['error']).']', E_USER_WARNING);
 			return false;
 		}
 		
@@ -468,10 +464,6 @@ class Input implements ArrayAccess {
 		} else {
 			return $this;
 		}
-	}
-	
-	public function lastError() {
-		return $this->last_error;
 	}
 	
 	public function isAjax() {
