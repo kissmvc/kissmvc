@@ -84,6 +84,9 @@ class KissApp {
 			$this->sysroot = SYSTEM_ROOT;
 		}
 		
+		//urlroot
+		$this->page->urlroot = $this->folder;
+		
 		//initialize data container for template data
 		$this->page->data = new stdObject();
 		
