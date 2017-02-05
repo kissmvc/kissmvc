@@ -1,9 +1,5 @@
 @import url(http://fonts.googleapis.com/css?family=Open+Sans:300italic,400,300,700,800&subset=latin,latin-ext);
 
-div { *zoom: 1; }
-div:before, div:after { display: table; content: ""; }
-div:after { clear: both; }
-
 html {
 	overflow-y: scroll;
 }
