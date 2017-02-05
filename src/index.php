@@ -6,7 +6,7 @@
  * @author		Anton Piták, SOFTPAE.com
  * @copyright	Copyright (c) 2016, Anton Piták
  * @link		http://www.softpae.com
- * @since		Version 1.0.0
+ * @since		Version 1.0.1
  * 
  * @requirements:
  * - php5 >= 5.4
