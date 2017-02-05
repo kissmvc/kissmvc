@@ -2,7 +2,7 @@
 /*
 	This file is part of the KISS Framework
 	Copyright (c) 2016 Anton Pitak (http://www.softpae.com)
-	Module: KISS config file
+	Module: KISS Main App Class
 	Version: 1.0
 	Description: Main module
 */
