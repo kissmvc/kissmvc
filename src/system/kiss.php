@@ -3,7 +3,7 @@
 	This file is part of the KISS Framework
 	Copyright (c) 2016 Anton Pitak (http://www.softpae.com)
 	Module: KISS config file
-	Version: 1.0
+	Version: 1.0.1
 */
 
 /* some definitions */
