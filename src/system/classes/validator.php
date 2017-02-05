@@ -193,6 +193,10 @@ class Validator {
     public static function datetime($datetime, $format = 'Y-m-d H:i:s') {
         return ($time = strtotime($datetime)) && ($datetime == date($format, $time));
     }
+	
+    public static function password($value) {
+		return preg_match('/(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])[a-zA-Z0-9]{8,}/', $value) ? true : false;
+    }
 
 }
 
