@@ -26,6 +26,8 @@ class Database { //implements ArrayAccess
 	private $db = '';
 	private $prefix = null;
 	
+	private $last_query = '';
+	
 	public function __construct($server = '127.0.0.1', $user = null, $pass = null, $db = null, $port = 0, $prefix = null) {
 	
 		if (is_array($server)) {
@@ -109,6 +111,8 @@ class Database { //implements ArrayAccess
 	}
 	
 	public function debugQuery($sql) {
+	
+		$this->last_query = $sql;
 		
 		if ($this->log_query == true) {
 		
@@ -397,29 +401,37 @@ class Database { //implements ArrayAccess
   	public function affected() {
     	return $this->server->affected_rows;
   	}
-
+	
   	public function lastId() {
     	return $this->server->insert_id;
-  	}	
-
+  	}
+	
   	public function getLastId() {
     	return $this->server->insert_id;
-  	}	
-
+  	}
+	
+  	public function getLastQuery() {
+    	return $this->last_query;
+  	}
+	
+  	public function getSql() {
+    	return $this->last_query;
+  	}
+	
   	public function &getMySqli() {
     	return $this->server;
-  	}	
-
+  	}
+	
   	public function getLastError() {
     	return $this->server->errno;
-  	}	
+  	}
 	
 	public function __destruct() {
 		if (isset($this->server)) {
 			@$this->server->close();
 		}
 	}
-
+	
 	private function convertResult($result) {
 	
 		if (is_object($result)) {
