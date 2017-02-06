@@ -68,6 +68,14 @@ class Session implements ArrayAccess {
 		}
 	}
 	
+	public function __isset($name) {
+		return array_key_exists($name, $this->container);
+	}
+	
+	function  __unset($name) {
+		unset($this->container[$name]);
+	}
+	
 	/* AccessArray methods */
 	
 	public function offsetSet($offset, $value) {
