@@ -2,7 +2,7 @@
 /*
 	This file is part of the KISS Framework
 	Copyright (c) 2016 Anton Pitak (http://www.softpae.com)
-	Module: KISS config file
+	Module: Language file for index page
 	Version: 1.0
 */
 
