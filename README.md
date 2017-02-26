@@ -1,6 +1,8 @@
 # KISS Framework
 KISS Framework - Very simple semi MVC framework with fast learning curve created with Keep It Simple Stupid principle.
 
+First simple example application here - KISS Blog - https://github.com/kissmvc/kissblog
+
 ## About
 KISS framework is a simple, easy to use framework created with students for students, to speedup learning, simplify programming in PHP and encapsulate complexity of standard MVC for beginners. It is created with *Keep It Simple Stupid* principle in mind, so this is why KISS and Semi MVC (models is not required, but could be used).
 
