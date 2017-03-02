@@ -256,7 +256,6 @@ $query->into('contacts_table')
 
 //another style
 $query->into('contacts_table')
-->fromPost() /* fill fields by values from POST */
 ->addField('name', $page->from->post('name')->val())
 ->addField('email', $page->from->post('email')->val())
 ->addField('msg', $page->from->post('message')->val())
