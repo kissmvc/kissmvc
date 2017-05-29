@@ -278,7 +278,7 @@ class KissApp {
 		
 		//cleanup $page object before pass to view
 		//unset($page->from);
-		unset($page->router);
+		//unset($page->router);
 		unset($page->db);
 		unset($page->log);
 		
