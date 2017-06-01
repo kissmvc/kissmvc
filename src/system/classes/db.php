@@ -187,6 +187,8 @@ class Database { //implements ArrayAccess
 		
 		if (is_numeric($fieldsorid)) {
 			$where = $this->schema[$table].' = '.($fieldsorid + 0);
+		} else {
+			$fields = $fieldsorid;
 		}
 		
 		if (is_numeric($idorwhere)) {
