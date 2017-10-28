@@ -178,6 +178,7 @@ class Image {
 				$new_width = $width;
 				$new_height = $height;
 				$org_width = (int)($width * (1/$scale));
+				$org_height = (int)($height * (1/$scale));
 			}
 		}
 		
