@@ -2,13 +2,15 @@
 /*
 	This file is part of the KISS Framework
 	Copyright (c) 2016 Anton Pitak (http://www.softpae.com)
-	Module: KISS config file
-	Version: 1.0
+	Module: KISS Mail class file
+	Version: 1.1
 */
 
 class Mail {
 
 	const EOL = "\r\n";
+	const CRLF = "\r\n";
+	const TAB = "\t";
 	
 	const EMAIL_HIGH = 1;
 	const EMAIL_NORMAL = 3;
@@ -17,47 +19,93 @@ class Mail {
 	private $headers = array();
 	private $attachments = array();
 	private $images = array();
+	private $from = null;
 	private $to = array();
+	private $cc = array();
+	private $bcc = array();
 	
 	private $html_body = '';
 	private $text_body = '';
 	
-	private $_to = '';
-	private $_headers = '';
 	private $_message = '';
 	private $_subject = '';
+	
+    private $server = null;
+    private $port = 25;
+    private $username = null;
+    private $password = null;
+    private $connect_timeout = 30;
+    private $response_timeout = 8;
+	
+	private $_recipients = array();
+	
+    private $socket = null;
+    private $use_smtp = false;
+    private $use_tls = true;
+    private $use_ssl = false;
+    private $use_log = false;
+	
+	private $log = '';
 	
     private $boundary;
     private $boundary_content;
 	
 	
-	public function __construct() {
+	public function __construct($server = null, $port = 25, $username = null, $password = null, $connection_timeout = 30, $response_timeout = 8) {
 	
-		$this->addHeader('Date', date('D, d M Y H:i:s O'));
+		$this->addHeader('Mime-Version',  '1.0');
 		$this->addHeader('X-Mailer',  'PHP/KISS.' . phpversion());
+		//$this->addHeader('Date', date('D, d M Y H:i:s O'));
 		
         $this->boundary = md5(rand());
         $this->boundary_content = md5(rand());
 		
+		$this->server = $server;
+		$this->port = $port;
+		$this->username = $username;
+		$this->password = $password;
+		$this->connection_timeout = $connection_timeout;
+		$this->response_timeout = $response_timeout;
+		
 	}
 	
-	public function addFrom($email, $name = null) {
-		$this->addHeader('From', $this->formatEmail($email, $name));
+	public function useSmtp($value = true) {
+		$this->use_smtp = $value;
+		return $this;
+	}
+	
+	public function useTls($value = true) {
+		$this->use_tls = $value;
+		return $this;
+	}
+	
+	public function useSsl($value = true) {
+		$this->use_ssl = $value;
+		return $this;
+	}
+	
+	public function useLog($value = true) {
+		$this->use_log = $value;
+		return $this;
+	}
+	
+	public function setFrom($email, $name = null) {
+		$this->from = array($email, $name);
 		return $this;
 	}
 	
 	public function addTo($email, $name = null) {
-		$this->to[$email] = array($email, $name);
+		$this->to[] = array($email, $name);
 		return $this;
 	}
 	
 	public function addCc($email, $name = null) {
-		$this->addHeader('Cc', $this->formatEmail($email, $name), true);
+		$this->cc[] = array($email, $name);
 		return $this;
 	}
 	
 	public function addBcc($email, $name = null) {
-		$this->addHeader('Bcc', $this->formatEmail($email, $name), true);
+		$this->bcc[] = array($email, $name);
 		return $this;
 	}
 	
@@ -66,26 +114,26 @@ class Mail {
 		return $this;
 	}
 	
-	public function addSubject($subject) {
+	public function setSubject($subject) {
 		$this->_subject = $subject;
 		return $this;
 	}
 	
-	public function addHtmlBody($body) {
+	public function setHtmlBody($body) {
 		$this->html_body = $body;
 		return $this;
 	}
 	
-	public function addBody($body) {
-		return $this->addHtmlBody($body);
+	public function setBody($body) {
+		return $this->setHtmlBody($body);
 	}
 	
-	public function addTextBody($body) {
+	public function setTextBody($body) {
 		$this->text_body = $body;
 		return $this;
 	}
 	
-	public function addReturnPath($email) {
+	public function setReturnPath($email) {
 		$this->addHeader('Return-Path', $email);
 		return $this;
 	}
@@ -123,19 +171,23 @@ class Mail {
 		return $this;
 	}
 	
-    public function getTo($path, $content_id = null) {
-		return $this->_to;
+    public function getLog() {
+		return $this->log;
     }
 	
-    public function getSubject($path, $content_id = null) {
+    public function getTo() {
+		return $this->buildEmailList($this->to);
+    }
+	
+    public function getSubject() {
 		return $this->_subject;
     }
 	
-    public function getHeaders($path, $content_id = null) {
+    public function getHeaders() {
 		return $this->_headers;
     }
 	
-    public function getMessage($path, $content_id = null) {
+    public function getMessage() {
 		return $this->_message;
     }
 	
@@ -145,65 +197,119 @@ class Mail {
 	}
 	
 	public function send() {
-	
-		$this->compose();
 		
-		// Function mail()
-        return mail($this->_to, '=?UTF-8?B?'.base64_encode($this->_subject).'?=', $this->_message, $this->_headers);
+		if (!$this->use_smtp) {
+		
+			// Use native php mail()
+			
+			// Prepare headers
+			$this->headers['From'] = $this->formatEmail($this->from);
+			if (!empty($this->cc)) {
+				$this->headers['Cc'] = $this->buildEmailList($this->cc);
+			}
+			$this->headers['Date'] = date('D, d M Y H:i:s O');
+			
+			$headers = $this->buildHeaders($this->headers, true);
+			
+			// Build body
+			$this->compose();
+			
+			//var_dump($headers);
+			
+			// Send
+			return mail($this->getTo(), '=?UTF-8?B?'.base64_encode($this->_subject).'?=', $this->_message, $headers);
+			
+		} else {
+		
+			// Use SMTP
+			
+			// Prepare headers
+			$this->headers['From'] = $this->formatEmail($this->from);
+			$this->headers['To'] = $this->buildEmailList($this->to);
+			if (!empty($this->cc)) {
+				$this->headers['Cc'] = $this->buildEmailList($this->cc);
+			}
+			$this->headers['Subject'] = '=?UTF-8?B?'.base64_encode($this->_subject).'?=';
+			$this->headers['Date'] = date('D, d M Y H:i:s O');
+			
+			$headers = $this->buildHeaders($this->headers, true);
+			
+			//var_dump($headers);
+			
+			// Build body
+			$this->compose();
+		
+			// Connect
+			$this->socket = fsockopen(($this->use_ssl ? 'ssl://'.$this->server : ($this->use_tls ? 'tcp://'.$this->server : $this->server)), $this->port, $err_number, $err_string, $this->connect_timeout);
+			
+			if (empty($this->socket)) {
+				return false;
+			}
+			
+			// Start
+			$this->getResponse();
+			$this->sendCmd('EHLO '.getenv('SERVER_NAME'));
+			
+			if ($this->use_tls) {
+			
+				$this->sendCmd('STARTTLS');
+				stream_socket_enable_crypto($this->socket, true, STREAM_CRYPTO_METHOD_TLS_CLIENT);
+				$this->sendCmd('EHLO '.getenv('SERVER_NAME'));
+				
+			}
+			
+			// Log in
+			$this->sendCmd('AUTH LOGIN');
+			$this->sendCmd(base64_encode($this->username));
+			$this->sendCmd(base64_encode($this->password));
+			$this->sendCmd('MAIL FROM: <' . $this->from[0] . '>');
+			
+			$this->_recipients = array_merge($this->to, $this->cc, $this->bcc);
+			
+			// Recipients
+			foreach (array_merge($this->_recipients) as $address) {
+				$this->sendCmd('RCPT TO: <' . $address[0] . '>');
+			}
+			
+			$this->sendCMD('DATA');
+			
+			// Finish
+			$ret = $this->sendCMD($headers . self::CRLF . $this->_message . self::CRLF . '.');
+			$this->sendCMD('QUIT');
+			
+			fclose($this->socket);
+			
+			return substr($ret, 0, 3) == '250';
+		
+		}
+		
 	}
 	
 	public function save($filename) {
 		
+		// Prepare headers
+		$this->headers['From'] = $this->formatEmail($this->from);
+		$this->headers['To'] = $this->buildEmailList($this->to);
+		if (!empty($this->cc)) {
+			$this->headers['Cc'] = $this->buildEmailList($this->cc);
+		}
+		$this->headers['Subject'] = '=?UTF-8?B?'.base64_encode($this->_subject).'?=';
+		$this->headers['Date'] = date('D, d M Y H:i:s O');
+		
+		$headers = $this->buildHeaders($this->headers, true);
+		
+		var_dump($headers);
+		
+		// Build body
 		$this->compose();
 		
-		file_put_contents($filename, 'To: '.$this->_to.self::EOL.'Subject: =?UTF-8?B?'.base64_encode($this->_subject).'?='.self::EOL.$this->_headers.$this->_message);
+		$ret = file_put_contents($filename, $headers.$this->_message);
+		
+		return ($ret === false ? false : true);
 		
 	}
 	
-	public function compose($exclude_to = true) {
-	
-		$to_header = '';
-		$headers = '';
-		
-		// Compose headers
-		foreach ($this->headers as $key => $header) {
-			
-			if (is_array($header)) {
-				
-				$line = '';
-				
-				foreach ($header as $value) {
-					$line .= (empty($line) ? '' : ', ').$value;
-				}
-				
-				if ($key == 'To') {
-					$to_header = $line;
-				} else {
-					$headers .= $key.': '.$line.self::EOL;
-				}
-				
-			} else {
-			
-				if ($key == 'To') {
-					$to_header = $header;
-				} else {
-					$headers .= $key.': '.$header.self::EOL;
-				}
-				
-			}
-			
-		}
-		
-		// Compose To
-		$to = '';
-		
-		foreach ($this->to as $value) {
-			$to .= (empty($to) ? '' : ', ').$this->formatEmail($value[0], $value[1]);
-		}
-		
-		$headers .= 'Mime-Version: 1.0'.self::EOL;
-		$headers .= 'Content-Type: multipart/related; boundary="'.$this->boundary.'"'.self::EOL;
-		$headers .= self::EOL;
+	private function compose() {
 		
 		// Message Body
 		$msg = self::EOL;
@@ -229,6 +335,7 @@ class Mail {
 		$msg .= 'Content-Transfer-Encoding: quoted-printable'.self::EOL;
 		$msg .= self::EOL;
 		
+		// Include images
 		if (!empty($this->html_body)) {
 		
 			preg_match_all('#<img[^>]*src="([^"]*)"#i', $this->html_body, $matches);
@@ -239,7 +346,7 @@ class Mail {
 					$id = 'img'.$index;
 					$src = $matches[1][$index];
 					
-					echo 'SRC: '.$src.BR;
+					//echo 'SRC: '.$src.BR;
 					
 					$this->addImage($src, $id);
 					
@@ -256,6 +363,7 @@ class Mail {
 		
 		$msg .= '--'.$this->boundary_content.'--'.self::EOL;
 		
+		// Add attachments
 		foreach ($this->attachments as $file) {
 		
 			$attachment = $this->prepareAttachment($file);
@@ -267,6 +375,7 @@ class Mail {
 		
 		}
 		
+		// Add images
 		foreach ($this->images as $file) {
 		
 			$attachment = $this->prepareImage($file);
@@ -278,23 +387,40 @@ class Mail {
 		
 		}
 		
+		// Finish
 		$msg .= self::EOL;
 		$msg .= '--'.$this->boundary.'--'.self::EOL;
 		
-		$this->_to = $to;
-		$this->_headers = $headers;
 		$this->_message = $msg;
 		
 		return $this;
 		
  	}
-
+	
+	private function buildHeaders($value, $multipart = false) {
+	
+		$headers = '';
+		
+		foreach ($value as $key => $val) {
+			$headers .= $key . ': ' . $val . self::CRLF;
+		}
+		if ($multipart) {
+			$headers .= 'Content-Type: multipart/related; boundary="'.$this->boundary.'"'.self::EOL;
+		}
+		return $headers;
+		
+	}
+	
 	private function formatEmail($email, $name = null) {
 	
-		if (!$name && preg_match('#^(.+) +<(.*)>\z#', $email, $matches)) {
-			$value = array($matches[2], $matches[1]);
+		if (is_array($email)) {
+			$value = $email;
 		} else {
-			$value = array($email, $name);
+			if (!$name && preg_match('#^(.+) +<(.*)>\z#', $email, $matches)) {
+				$value = array($matches[2], $matches[1]);
+			} else {
+				$value = array($email, $name);
+			}
 		}
 		
 		if (isset($value[1]) && !empty($value[1])) {
@@ -303,7 +429,18 @@ class Mail {
 			return '=?UTF-8?B?'.base64_encode(stristr($value[0], '@', true)).'?= <'. $value[0].'>';
 		}
 	}
-
+	
+	private function buildEmailList($addresses) {
+	
+		$list = '';
+		
+		foreach ($addresses as $address) {
+			$list .= (empty($list) ? '' : ', ').$this->formatEmail($address);
+		}
+        return $list;
+		
+    }
+	
     private function prepareImage($file) {
 	
 		$path = $file['path'];
@@ -407,5 +544,39 @@ class Mail {
 		$text = Strings::replace($text, '#[ \t]+#', ' ');
 		return trim($text);
 	}
+	
+	private function Log($msg) {
+		$this->log .= (empty($this->log) ? $msg : self::CRLF.$msg );
+	}
+	
+    private function getResponse() {
+	
+        stream_set_timeout($this->socket, $this->response_timeout);
+		
+        $response = '';
+		
+        while (($line = fgets($this->socket, 515)) != false) {
+            $response .= trim($line) . "\n";
+            if (substr($line, 3, 1) == ' ') {
+                break;
+            }
+        }
+		
+        return trim($response);
+    }
+	
+    private function sendCmd($command) {
+	
+        fputs($this->socket, $command.self::CRLF);
+		
+		$ret = $this->getResponse();
+		
+		if ($this->use_log) {
+			$this->Log($command.self::CRLF.$ret);
+		}
+		
+        return $ret;
+		
+    }
 
 }
