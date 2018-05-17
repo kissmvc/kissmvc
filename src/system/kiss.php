@@ -82,7 +82,7 @@ if (!defined('APP_FOLDER') && isset($_SERVER['SCRIPT_FILENAME'])) {
 //try to setup SITE_URL
 if (!defined('SITE_URL')) {
 	//$site_url = 'http'.(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 's' : '').'://'.$_SERVER['HTTP_HOST'].($_SERVER['SERVER_PORT'] != 80 && $_SERVER['SERVER_PORT'] != 443 ? $_SERVER['SERVER_PORT']: '').'/';
-	$site_url = (((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) ? 'https://' : 'http://').$_SERVER['HTTP_HOST'].($_SERVER['SERVER_PORT'] != 80 && $_SERVER['SERVER_PORT'] != 443 ? $_SERVER['SERVER_PORT']: '').'/';
+	$site_url = (((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) ? 'https://' : 'http://').(stripos($_SERVER['HTTP_HOST'], ':') === false ? $_SERVER['HTTP_HOST'].($_SERVER['SERVER_PORT'] != 80 && $_SERVER['SERVER_PORT'] != 443 ? $_SERVER['SERVER_PORT']: '') : $_SERVER['HTTP_HOST']).(APP_FOLDER != '' ? APP_FOLDER.'/' : '/');
 	define('SITE_URL', $site_url);
 }
 
